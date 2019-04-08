@@ -3,8 +3,8 @@ import math
 
 
 class GeneticAlg:
-    def __init__(self, change, coins, population_length=100, penalty1=1000, penalty2=1000, mutation_chance=10,
-                 iteration=100):
+    def __init__(self, change, coins, population_length=200, penalty1=1000, penalty2=100, mutation_chance=50,
+                 iteration=1000):
         self.change = change
         self.coins = coins
         self.chromosome_length = len(coins)
@@ -16,12 +16,11 @@ class GeneticAlg:
         self.mutation_chance = mutation_chance
         self.iteration = iteration
 
-        print('test')
-
     def random_gene(self):
         # TODO
         # OKRESLENIE ILOSCI LOSOWANYCH NOMINALOW
-        a = math.floor(self.change/self.coins[len(self.coins)-1])
+        # a = math.floor(self.change / self.coins[len(self.coins) - 1]) + 3
+        a = 3
         # print(a)
         x = random.randint(0, a)
         return x
@@ -44,8 +43,8 @@ class GeneticAlg:
         sum = 0
         coin_count = 0
         for i in range(0, self.chromosome_length):
-             sum = sum + chromosome[i] * self.coins[i]
-             coin_count = coin_count + chromosome[i]
+            sum = sum + chromosome[i] * self.coins[i]
+            coin_count = coin_count + chromosome[i]
 
         err = self.change - sum
 
@@ -84,17 +83,39 @@ class GeneticAlg:
         #         tmp = random.randint(1, self.chromosome- 1)
         #     locus.append(tmp)
         # for i in range(locus_count):
-        locus = random.randint(1, self.chromosome_length - 1)
+        cross_method = 2
         child1 = []
         child2 = []
+        if cross_method == 1:
+            locus = random.randint(1, self.chromosome_length - 1)
 
-        for i in range(self.chromosome_length):
-            if i < locus:
-                child1.append(mother[i])
-                child2.append(father[i])
-            else:
-                child1.append(father[i])
-                child2.append(mother[i])
+            for i in range(self.chromosome_length):
+                if i < locus:
+                    child1.append(mother[i])
+                    child2.append(father[i])
+                else:
+                    child1.append(father[i])
+                    child2.append(mother[i])
+        else:
+            parent = True
+
+            locus_count = math.floor(self.chromosome_length/3)
+            locus = []
+            for i in range(locus_count.__int__()):
+                tmp = 0
+                while tmp in locus:
+                    random.randint(1, self.chromosome_length-1)
+            for i in range(self.chromosome_length):
+                if i in locus:
+                    parent = not parent
+                if parent:
+                    child1.append(mother[i])
+                    child2.append(father[i])
+                else:
+                    child1.append(father[i])
+                    child2.append(mother[i])
+
+
 
         return [child1, child2]
 
@@ -110,24 +131,35 @@ class GeneticAlg:
         best_x = population_p[0]
         for k in range(self.iteration):
             population_r = []
-            random.shuffle(population_p)
+            # random.shuffle(population_p)
             for i in range(0, self.population_length, 2):
-                children = self.cross(population_p[i], population_p[i - 1])
+                mother = 0
+                father = 1
+                children = [self.random_chromosome(), self.random_chromosome()]
+                while (mother == father) or (children[0] in population_p) or (children[1] in
+                        population_p):
+                    mother = random.randint(0, self.population_length-1)
+                    father = random.randint(0, self.population_length-1)
+                    children = self.cross(population_p[mother], population_p[father])
+                    children[0] = self.mutate(children[0])
+                    children[1] = self.mutate(children[1])
+
                 population_r.append(children[0])
                 population_r.append(children[1])
 
-            for i in range(0, self.population_length):
-                population_r[i] = self.mutate(population_r[i])
+            # for i in range(0, self.population_length):
+            #     population_r[i] = self.mutate(population_r[i])
             population_p = self.new_population(population_p, population_r)
             if self.fitness(population_p[0]) < self.fitness(best_x):
                 best_x = population_p[0]
 
         print(population_p)
+        # print(population_r)
         return best_x
 
 
 if __name__ == '__main__':
-    ga = GeneticAlg(change=749, coins=[1, 2, 5, 10, 20, 50, 100, 200, 500])
+    ga = GeneticAlg(change=833, coins=[1, 2, 5, 10, 20, 50, 100, 200, 500])
     # ans = ga.create_population()
     # print(ga.fitness(ans[0]))
     sum = 0
