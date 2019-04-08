@@ -3,7 +3,7 @@ import math
 
 
 class GeneticAlg:
-    def __init__(self, change, coins, population_length=100, penalty1=100, penalty2=100, mutation_chance=30,
+    def __init__(self, change, coins, population_length=100, penalty1=1000, penalty2=1000, mutation_chance=10,
                  iteration=100):
         self.change = change
         self.coins = coins
@@ -127,7 +127,7 @@ class GeneticAlg:
 
 
 if __name__ == '__main__':
-    ga = GeneticAlg(change=659, coins=[1, 2, 5, 10, 100])
+    ga = GeneticAlg(change=749, coins=[1, 2, 5, 10, 20, 50, 100, 200, 500])
     # ans = ga.create_population()
     # print(ga.fitness(ans[0]))
     sum = 0
