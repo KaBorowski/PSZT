@@ -3,8 +3,19 @@ import math
 
 
 class GeneticAlg:
-    def __init__(self, change, coins, population_length=100, penalty1=10, penalty2=1, mutation_chance=10,
-                 iteration=1000, elite=1):
+    def __init__(self, change, coins, population_length=200, penalty1=10, penalty2=1, mutation_chance=10,
+                 iteration=1000, elite=10):
+        """
+        Inicjalizacja algorytmu
+        :param change: reszta do wydania
+        :param coins: zbior nominalow waluty
+        :param population_length: wielkosc populacji P i R osobnikow
+        :param penalty1: wspolczynnik kary niepoprawnej reszty
+        :param penalty2: wspolczynnik kary nieoptymalnego rozkladu
+        :param mutation_chance: szansa na mutacje osobnika w %
+        :param iteration: liczba iteracji algorytmu (brak warunku stopu)
+        :param elite: liczba osobnikow elitarnych
+        """
         self.change = change
         self.coins = coins
         self.chromosome_length = len(coins)
@@ -18,15 +29,23 @@ class GeneticAlg:
         self.elite = elite
 
     def random_gene(self):
+        """
+        funkcja losujaca pojedynczy gen chromosomu, czyli liczbe sztuk danego nominalu
+        :return: Ilosc sztuk danego nominalu
+        """
         # TODO
         # OKRESLENIE ILOSCI LOSOWANYCH NOMINALOW
-        # a = math.floor(self.change / self.coins[len(self.coins) - 1]) + 3
-        a = 3
+        a = math.floor(self.change / self.coins[len(self.coins) - 1]) + 2
+        # a = 3
         # print(a)
         x = random.randint(0, a)
         return x
 
     def random_chromosome(self):
+        """
+        funkcja losujaca chromoson, czyli zestaw genow, ktorymi jest rozklad nominalow waluty
+        :return: Tablica z iloscia sztuk poszczegolnych nominalow
+        """
         genes = []
         for i in range(self.chromosome_length):
             genes.append(self.random_gene())
@@ -34,6 +53,10 @@ class GeneticAlg:
         return genes
 
     def create_population(self):
+        """
+        Funkcja tworzaca losowa populacje startowa
+        :return: Losowa populacja dla k=1
+        """
         population = []
         for i in range(self.population_length):
             population.append(self.random_chromosome())
@@ -41,6 +64,11 @@ class GeneticAlg:
         return population
 
     def fitness(self, chromosome):
+        """
+        Funkcja liczaca funkcje celu dla danego zestawu monet
+        :param chromosome: chromosom (zestaw monet), ktorego jakosc sprawdzamy
+        :return: Jakosc danego chromosomu
+        """
         sum = 0
         coin_count = 0
         for i in range(0, self.chromosome_length):
@@ -55,6 +83,11 @@ class GeneticAlg:
         return self.penalty1 * err ** 2 + self.penalty2 * coin_count
 
     def sort_population(self, population):
+        """
+        Sortowanie populacji od najlepszego genotypu do najgorszego
+        :param population: populacja do posortowania
+        :return: posortowana populacja
+        """
         tmp = [(self.fitness(x), x) for x in population]
         tmp = sorted(tmp)
         tmp = [x[1] for x in tmp]
@@ -63,6 +96,14 @@ class GeneticAlg:
         return population
 
     def new_population(self, population_p, population_r):
+        """
+        Tworzenie nowej populacji z populacji P i R. Jesli population_choice_method == 1, to wybor population_length
+        najlepszych osobnikow (rozwiazanie slaby w naszym przypadku); w p.p. metoda ruletki, losujaca nowa populacje
+        z prawdopodobienstwem zaleznym od jakosci rozwiazania. Dodatkowo implementacja strategii elitarnej
+        :param population_p: populacja rodzicow P
+        :param population_r: populacja potomkow R
+        :return: nowa populacja
+        """
         population_choice_method = 2
 
         population = []
@@ -111,6 +152,12 @@ class GeneticAlg:
         return population
 
     def cross(self, mother, father):
+        """
+        Funkcja krzyzujaca dwa genotypy i tworzaca dwa osobniki potomne
+        :param mother:
+        :param father:
+        :return: nowe osobniki potomne
+        """
 
         cross_method = 2
         child1 = []
@@ -147,12 +194,21 @@ class GeneticAlg:
         return [child1, child2]
 
     def mutate(self, child):
+        """
+        Funkcja mutujaca dany genotym z szansa mutation_chance
+        :param child: mutowany genotyp
+        :return: zmutowany, badz nie genotyp
+        """
         for i in range(0, self.chromosome_length):
             if random.randint(1, 100) <= self.mutation_chance:
                 child[i] = self.random_gene()
         return child
 
     def run(self):
+        """
+        Funckja uruchamiajaca algorytm genetyczny wyliczajacy reszte i ilosc wydanych monet
+        :return: rozklad waluty
+        """
         population_p = self.create_population()
         population_p = self.sort_population(population_p)
         best_x = population_p[0]
