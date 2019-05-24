@@ -1,0 +1,13 @@
+Problem grsfdowy, sieć optyczna modelowana za pomocą grafu, dwdm polega na tym
+ że w światłowodzie można przetransportować do 96 długości fali chodzi o to
+ że każda lambda to jedna freq i niesie za sobą duża przepustowość nawet do
+ 100gb problemem jest znalezienie optymalnego routinguw sieci który tak rozłoży
+  długości fali aby wszystkie zapotrzebowania był zrealizowane a jednocześnie
+  jak najmniej lambda było na krawędziach, do modelowania jak przykłady weźmiemy
+  z sieci realisty czne sieci są na stronie internetowej
+Sndlib.de
+Wybieramy sieć poleca jakas niemiecka np przeanalizować dwie sieci małą polska
+i duża nie niecka
+Zapotrzebowanie rynku żyjemy tak że międzywojennym a i b Jet ścieżka z x krawędzi
+i te ścieżki zakładamy że.mamy 3 ścieżki
+Pojemność polega na tym że na jednej krawędzi może byc najwiecej 96 lambd
