@@ -43,7 +43,7 @@ class Network:
             yCoordinates = node.getElementsByTagName('y')[0]
             yCoordinates = yCoordinates.childNodes[0].data
             nodemap[Nodeid] = Node(Nodeid, xCoordinates, yCoordinates)
-            # print ("%s : %s %s" % (node.getAttribute("id"), xCoordinates, yCoordinates))
+            print ("%s : %s %s" % (node.getAttribute("id"), xCoordinates, yCoordinates))
 
         linklist = Read_Data.getElementsByTagName("link")
         for link in linklist:
@@ -61,8 +61,8 @@ class Network:
             if Destination in nodemap:
                 nodemap[Destination].linklist.append(linkobj)
 
-        #     print("%s - %s to %s: %s" % (
-        #     link.getAttribute("id"), Source, Destination, Capacity))
+            print("%s - %s to %s: %s" % (
+            link.getAttribute("id"), Source, Destination, Capacity))
         demandlist = Read_Data.getElementsByTagName("demand")
         for demand in demandlist:
             if demand.hasAttribute("id"):
@@ -79,5 +79,5 @@ class Network:
             if Destination in nodemap:
                 nodemap[Destination].demandlist.append(demandobj)
 
-            # print ("%s needs %s" % (demand.getAttribute("id"), Demandval))
+            print ("%s needs %s" % (demand.getAttribute("id"), Demandval))
         return nodemap

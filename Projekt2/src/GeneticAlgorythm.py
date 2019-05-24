@@ -1,5 +1,6 @@
 import random
 import math
+from Network import Network
 
 
 class GeneticAlg:
@@ -239,12 +240,5 @@ class GeneticAlg:
 
 
 if __name__ == '__main__':
-    ga = GeneticAlg(change=839, coins=[1, 2, 5, 10, 20, 50, 100, 200, 500])
-    sum = 0
-    ans = ga.run()
-    print('ROZKLAD MONET = ')
-    print(ans)
-    print('WYDANA RESZTA = ')
-    for i in range(0, ga.chromosome_length):
-        sum = sum + ans[i] * ga.coins[i]
-    print(sum)
+    net = Network()
+    print(net.get_Network())
