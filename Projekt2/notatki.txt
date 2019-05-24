@@ -11,3 +11,15 @@ i duża nie niecka
 Zapotrzebowanie rynku żyjemy tak że międzywojennym a i b Jet ścieżka z x krawędzi
 i te ścieżki zakładamy że.mamy 3 ścieżki
 Pojemność polega na tym że na jednej krawędzi może byc najwiecej 96 lambd
+
+
+
+PYTANIA:
+
+1. Co dokładnie optymalizować? Sume freq na kazdej krawędzi? W sensie chodzi mi o to że lepiej jest zoptymalizowane rozwiązanie gdzie używamy  4 krawędzi Ale po jednej lambdzid niż 2 Ale na jednej dwie lambdą?
+
+2. O co chodzi ze spełenieniem PRZYNAJMNIEJ jednego zapotrzebowania? Nie mamy spełnić wszystkich ?
+
+3. Czy miasto może się podpiąć pod już istniejąca lambde jesli nie została w pełni wykorzystana?
+
+4. 
