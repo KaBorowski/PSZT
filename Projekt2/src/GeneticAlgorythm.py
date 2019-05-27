@@ -240,5 +240,11 @@ class GeneticAlg:
 
 
 if __name__ == '__main__':
-    net = Network()
-    print(net.get_Network())
+    network = Network()
+    network = network.get_Network()
+    # for net in network:
+    #     print(net)
+    #     for demand in network[net].demandlist:
+    #         # print(demand)
+    #         for demandpath in demand:
+    #             print(demandpath)

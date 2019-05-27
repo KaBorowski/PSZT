@@ -24,6 +24,13 @@ class Demand:
         self.source = source
         self.destination = destination
         self.demandValue = demandValue
+        self.admissiblePaths = []
+
+
+class DemandPath:
+    def __init__(self, uid):
+        self.uid = uid
+        self.links = []
 
 
 class Network:
@@ -43,7 +50,7 @@ class Network:
             yCoordinates = node.getElementsByTagName('y')[0]
             yCoordinates = yCoordinates.childNodes[0].data
             nodemap[Nodeid] = Node(Nodeid, xCoordinates, yCoordinates)
-            print ("%s : %s %s" % (node.getAttribute("id"), xCoordinates, yCoordinates))
+            # print("%s : %s %s" % (node.getAttribute("id"), xCoordinates, yCoordinates))
 
         linklist = Read_Data.getElementsByTagName("link")
         for link in linklist:
@@ -61,8 +68,8 @@ class Network:
             if Destination in nodemap:
                 nodemap[Destination].linklist.append(linkobj)
 
-            print("%s - %s to %s: %s" % (
-            link.getAttribute("id"), Source, Destination, Capacity))
+            # print("%s - %s to %s: %s" % (
+            #     link.getAttribute("id"), Source, Destination, Capacity))
         demandlist = Read_Data.getElementsByTagName("demand")
         for demand in demandlist:
             if demand.hasAttribute("id"):
@@ -74,10 +81,23 @@ class Network:
             Demandval = demand.getElementsByTagName('demandValue')[0]
             Demandval = Demandval.childNodes[0].data
             demandobj = Demand(Demandid, Source, Destination, Demandval)
+            demandpathlist = demand.getElementsByTagName("admissiblePath")
+            for demandpath in demandpathlist:
+                if demandpath.hasAttribute("id"):
+                    DemandPathid = demandpath.getAttribute("id")
+                LinkId = demandpath.getElementsByTagName('linkId')
+                demandpathobj = DemandPath(DemandPathid)
+                # print(DemandPathid)
+                for i in LinkId:
+                    demandpathobj.links.append(i.childNodes[0].data)
+                    # print(i.childNodes[0].data)
+                demandobj.admissiblePaths.append(demandpathobj)
+
             if Source in nodemap:
                 nodemap[Source].demandlist.append(demandobj)
             if Destination in nodemap:
                 nodemap[Destination].demandlist.append(demandobj)
 
-            print ("%s needs %s" % (demand.getAttribute("id"), Demandval))
+            # print("%s needs %s" % (demand.getAttribute("id"), Demandval))
+
         return nodemap
