@@ -4,22 +4,20 @@ from Network import Network
 
 
 class GeneticAlg:
-    def __init__(self, change, coins, population_length=200, penalty1=10, penalty2=1, mutation_chance=10,
-                 iteration=1000, elite=10):
+    def __init__(self, network, population_length=100, penalty1=10, penalty2=1, mutation_chance=10,
+                 iteration=100, elite=10, cross_rate=10):
         """
         Inicjalizacja algorytmu
-        :param change: reszta do wydania
-        :param coins: zbior nominalow waluty
+        :param network: siec DWDM
         :param population_length: wielkosc populacji P i R osobnikow
-        :param penalty1: wspolczynnik kary niepoprawnej reszty
+        :param penalty1: wspolczynnik kary niepoprawnej liczby lambd
         :param penalty2: wspolczynnik kary nieoptymalnego rozkladu
         :param mutation_chance: szansa na mutacje osobnika w %
         :param iteration: liczba iteracji algorytmu (brak warunku stopu)
         :param elite: liczba osobnikow elitarnych
         """
-        self.change = change
-        self.coins = coins
-        self.chromosome_length = len(coins)
+        self.network = network
+        self.chromosome_length = self.network.demand_path_amount
         self.population_length = population_length
         if self.population_length % 2 != 0:
             self.population_length = population_length + 1
@@ -28,24 +26,22 @@ class GeneticAlg:
         self.mutation_chance = mutation_chance
         self.iteration = iteration
         self.elite = elite
+        self.cross_rate = cross_rate
 
     def random_gene(self):
         """
-        funkcja losujaca pojedynczy gen chromosomu, czyli liczbe sztuk danego nominalu
-        :return: Ilosc sztuk danego nominalu
+        funkcja losujaca pojedynczy gen chromosomu, czyli trase zapotrzebowania lub jego czesci
+        :return: Wybrany indeks krawedzi
         """
-        # TODO
-        # OKRESLENIE ILOSCI LOSOWANYCH NOMINALOW
-        a = math.floor(self.change / self.coins[len(self.coins) - 1]) + 2
-        # a = 3
-        # print(a)
-        x = random.randint(0, a)
+        path_number = 6
+        x = random.randint(0, path_number)
         return x
 
     def random_chromosome(self):
         """
-        funkcja losujaca chromoson, czyli zestaw genow, ktorymi jest rozklad nominalow waluty
-        :return: Tablica z iloscia sztuk poszczegolnych nominalow
+        funkcja losujaca chromosom, czyli zestaw genow, ktorymi
+        jest rozklad krawedzi, ktorymi spelnione jest dane wymaganie lub jego czesc
+        :return: Tablica z indeksami sciezek
         """
         genes = []
         for i in range(self.chromosome_length):
@@ -66,22 +62,27 @@ class GeneticAlg:
 
     def fitness(self, chromosome):
         """
-        Funkcja liczaca funkcje celu dla danego zestawu monet
-        :param chromosome: chromosom (zestaw monet), ktorego jakosc sprawdzamy
+        Funkcja liczaca funkcje celu dla danego rozwiazania problemu zapotrzebowania w sieci DWDM
+        :param chromosome: chromosom, ktorego jakosc sprawdzamy
         :return: Jakosc danego chromosomu
         """
-        sum = 0
-        coin_count = 0
-        for i in range(0, self.chromosome_length):
-            sum = sum + chromosome[i] * self.coins[i]
-            coin_count = coin_count + chromosome[i]
+        node_map = self.network.node_map
+        link_dict = self.network.get_link_dictionary()
+        gene = 0
+        for node in node_map:
+            for demand in node_map[node].demand_list:
+                for _ in range(demand.lambda_number):
+                    for link in demand.admissiblePaths[chromosome[gene]].links:
+                        link_dict[link] += 1
+                    gene += 1
+                    if gene >= self.chromosome_length:
+                        break
 
-        err = self.change - sum
+        f_sum = 0
+        for l in link_dict:
+            f_sum += link_dict[l]
 
-        # print(err)
-        # print(coin_count)
-
-        return self.penalty1 * err ** 2 + self.penalty2 * coin_count
+        return self.penalty2 * f_sum
 
     def sort_population(self, population):
         """
@@ -99,7 +100,7 @@ class GeneticAlg:
     def new_population(self, population_p, population_r):
         """
         Tworzenie nowej populacji z populacji P i R. Jesli population_choice_method == 1, to wybor population_length
-        najlepszych osobnikow (rozwiazanie slaby w naszym przypadku); w p.p. metoda ruletki, losujaca nowa populacje
+        najlepszych osobnikow (rozwiazanie slabe w naszym przypadku); w p.p. metoda ruletki, losujaca nowa populacje
         z prawdopodobienstwem zaleznym od jakosci rozwiazania. Dodatkowo implementacja strategii elitarnej
         :param population_p: populacja rodzicow P
         :param population_r: populacja potomkow R
@@ -176,9 +177,9 @@ class GeneticAlg:
         else:
             parent = True
 
-            locus_count = math.floor(self.chromosome_length / 3)
+            locus_count = math.floor(self.chromosome_length / self.cross_rate)
             locus = []
-            for i in range(locus_count.__int__()):
+            for i in range(int(locus_count)):
                 tmp = 0
                 while tmp in locus:
                     random.randint(1, self.chromosome_length - 1)
@@ -207,8 +208,8 @@ class GeneticAlg:
 
     def run(self):
         """
-        Funckja uruchamiajaca algorytm genetyczny wyliczajacy reszte i ilosc wydanych monet
-        :return: rozklad waluty
+        Funckja uruchamiajaca algorytm genetyczny minimalizujacy liczbe szczelin
+        :return: rozklad sieci DWDM
         """
         population_p = self.create_population()
         population_p = self.sort_population(population_p)
@@ -235,16 +236,33 @@ class GeneticAlg:
             if self.fitness(population_p[0]) < self.fitness(best_x):
                 best_x = population_p[0]
 
-        print(population_p)
+        # print(population_p)
         return best_x
+
+    def print_link_lambda(self, chromosome):
+        node_map = self.network.node_map
+        link_dict = self.network.get_link_dictionary()
+        gene = 0
+        for node in node_map:
+            for demand in node_map[node].demand_list:
+                for _ in range(demand.lambda_number):
+                    for link in demand.admissiblePaths[chromosome[gene]].links:
+                        link_dict[link] += 1
+                    gene += 1
+                    if gene >= self.chromosome_length:
+                        break
+
+        f_sum = 0
+        for l in link_dict:
+            f_sum += link_dict[l]
+            print link_dict[l]
+
+        return f_sum
 
 
 if __name__ == '__main__':
     network = Network()
-    network = network.get_Network()
-    # for net in network:
-    #     print(net)
-    #     for demand in network[net].demandlist:
-    #         # print(demand)
-    #         for demandpath in demand:
-    #             print(demandpath)
+    ga = GeneticAlg(network)
+    result = ga.run()
+    print (result)
+    print (ga.print_link_lambda(result))
