@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+
+# rozwiazanie na problem ze znalezieniem modulu `basemap` na moim komputerze
+import mpl_toolkits
+mpl_toolkits.__path__.insert(0, '/usr/lib/pymodules/python2.7/mpl_toolkits')
+
+# na podstawie: BaseMap example by geophysique.be - tutorial 01
+# adres:  http://www.geophysique.be/tutorials
+
+from mpl_toolkits.basemap import Basemap
+import matplotlib.pyplot as plt
+import numpy as np
+
+# symbole: b=blue, g=green, r=red, o=okrag, s=square
+# wspolrzedne miast na podstawie Wikipedii
+
+miasta = {
+    'Gdansk': {'pos': (54.36, 18.64), 'ilosc': 5, 'symbol': 'bo'},
+    'Gliwice': {'pos': (50.31, 18.67), 'ilosc': 3, 'symbol': 'bo'},
+    'Krakow': {'pos': (50.06, 19.96), 'ilosc': 10, 'symbol': 'bo'},
+    'Lodz': {'pos': (51.77, 19.46), 'ilosc': 3, 'symbol': 'bo'},
+    'Lublin': {'pos': (51.24, 22.57), 'ilosc': 5, 'symbol': 'bo'},
+    'Poznan': {'pos': (52.4, 16.9), 'ilosc': 10, 'symbol': 'bo'},
+    'Szczecin': {'pos': (53.43, 14.53), 'ilosc': 2, 'symbol': 'ro'},
+    'Torun': {'pos': (52.9823, 18.6552), 'ilosc': 2, 'symbol': 'ro'},
+    'Wroclaw': {'pos': (51.11, 17.03), 'ilosc': 10, 'symbol': 'bo'},
+    'Zakopane': {'pos': (49.29, 19.96), 'ilosc': 2, 'symbol': 'ro'},
+    'miasta!!!': {'pos': ( 1+(48.8+55.0)/2, 2.5+(13.8+24.4)/2 ), 'ilosc': 30, 'symbol': 'g*'},
+}
+
+# zakres mapy (Polska)
+lat_min, lat_max = 48.8, 55.0
+lon_min, lon_max = 13.8, 24.4
+
+# wymiary rysunku
+fig = plt.figure(figsize=(10.0, 9.0))
+
+# marginesy
+plt.subplots_adjust(left=0.10, right=0.90, top=0.90, bottom=0.10, wspace=0.15, hspace=0.05)
+
+# tworzenie mapy dla Polski
+m = Basemap(resolution='i', projection='merc', llcrnrlat=lat_min, urcrnrlat=lat_max, llcrnrlon=lon_min, urcrnrlon=lon_max)
+
+# grubość granic i linii wybrzeży
+m.drawcountries(linewidth=0.5)
+m.drawcoastlines(linewidth=0.5)
+
+# równoleżniki i południki
+m.drawparallels(np.arange(lat_min, lat_max, 1.), labels=[1,0,0,0], color='black', dashes=[1,5], labelstyle='+/-', linewidth=0.2)
+m.drawmeridians(np.arange(lon_min, lon_max, 1.), labels=[0,0,0,1], color='black', dashes=[1,5], labelstyle='+/-', linewidth=0.2)
+
+# rysowanie danych
+for nazwa, dane in miasta.items():
+    # współrzędne w odwrotnej kolejności
+    x, y = m(dane['pos'][1], dane['pos'][0])
+
+    # narysowanie symbolu
+    m.plot(x, y, dane['symbol'], markersize=dane['ilosc'])
+
+    # wypisanie etykiety (z przesunięciem)
+    plt.text(x+(dane['ilosc']*1000), y+(dane['ilosc']*1000), nazwa)
+
+# tytul
+plt.title("Rozklad Pythona na terenie Polski")
+
+# i wyslanie na ekran
+plt.show()

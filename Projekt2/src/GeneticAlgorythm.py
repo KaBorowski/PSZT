@@ -4,8 +4,8 @@ from Network import Network
 
 
 class GeneticAlg:
-    def __init__(self, network, population_length=100, penalty1=10, penalty2=1, mutation_chance=10,
-                 iteration=100, elite=10, cross_rate=10):
+    def __init__(self, network, population_length=500, penalty1=1000, penalty2=1, mutation_chance=10,
+                 iteration=1000, elite=10, cross_rate=5):
         """
         Inicjalizacja algorytmu
         :param network: siec DWDM
@@ -79,10 +79,13 @@ class GeneticAlg:
                         break
 
         f_sum = 0
+        err = 0
         for l in link_dict:
             f_sum += link_dict[l]
+            if int(link_dict[l]) > self.network.link_capacity:
+                err += int(link_dict[l]) - self.network.link_capacity
 
-        return self.penalty2 * f_sum
+        return self.penalty2 * f_sum + self.penalty1 * err
 
     def sort_population(self, population):
         """
@@ -261,7 +264,7 @@ class GeneticAlg:
 
 
 if __name__ == '__main__':
-    network = Network()
+    network = Network(lambda_capacity=100, link_capacity=40)
     ga = GeneticAlg(network)
     result = ga.run()
     print (result)
